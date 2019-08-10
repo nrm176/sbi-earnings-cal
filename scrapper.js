@@ -89,11 +89,13 @@ async function WriteDataToCSV(path, records) {
 
 (async () => {
 
-    const d = process.argv[2]
+    let d = process.argv[2]
 
-    if (d.length != 8) {
+    if (d.length != 8 && /^\d+$/.test(d)) {
         console.log('yyyymmdd形式で日付を入力してください')
         return;
+    } else if (d == 'today') {
+        d = moment().format("YYYYMMDD");
     }
 
     const year = d.substring(0, 4)
@@ -106,10 +108,10 @@ async function WriteDataToCSV(path, records) {
     const browser = await puppeteer.launch({headless: true});
     let page = await browser.newPage();
     await page.setUserAgent(FAKE_USER_AGENT)
-    console.log(`fetching ${SBI_EARNINGS_URL}` )
+    console.log(`fetching ${SBI_EARNINGS_URL}`)
 
     page = await go_to_url(page, SBI_EARNINGS_URL);
-    await page.waitFor(30*1000);
+    await page.waitFor(30 * 1000);
     let data = await scrape_table(page)
     console.log(data)
 
@@ -123,7 +125,7 @@ async function WriteDataToCSV(path, records) {
         dataList = dataList.concat(data)
         flag = await hasNextPage(page);
     }
-    const dir = process.env.ON_HEROKU ? '/tmp/sbi_earnings_cal_' : './csv/sbi_earnings_cal_'
+    const dir = process.env.ON_HEROKU ? '/tmp/sbi_earnings_cal' : './csv/sbi_earnings_cal'
     const path_to_save = `${dir}_${d}.csv`
     console.log(`saving a file to ${path_to_save}`)
     await WriteDataToCSV(path_to_save, dataList);
