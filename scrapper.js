@@ -105,7 +105,8 @@ async function WriteDataToCSV(path, records) {
     const SBI_EARNINGS_URL = `https://www.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_economicCalendar&cat1=market&cat2=economicCalender&dir=tl1-cal%7Ctl2-schedule%7Ctl3-stock%7Ctl4-calsel%7Ctl9-${year}${month}%7Ctl10-${year}${month}${day}&file=index.html&getFlg=on`
     const FAKE_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, likeGecko) Chrome/41.0.2228.0 Safari/537.36';
     let dataList = []
-    const browser = await puppeteer.launch({headless: true});
+    const LAUNCH_OPTION = process.env.DYNO ? {args: ['--no-sandbox', '--disable-setuid-sandbox']} : {headless: true};
+    const browser = await puppeteer.launch(LAUNCH_OPTION);
     let page = await browser.newPage();
     await page.setUserAgent(FAKE_USER_AGENT)
     console.log(`fetching ${SBI_EARNINGS_URL}`)
@@ -125,7 +126,7 @@ async function WriteDataToCSV(path, records) {
         dataList = dataList.concat(data)
         flag = await hasNextPage(page);
     }
-    const dir = process.env.ON_HEROKU ? '/tmp/sbi_earnings_cal' : './csv/sbi_earnings_cal'
+    const dir = process.env.DYNO ? '/tmp/sbi_earnings_cal' : './csv/sbi_earnings_cal'
     const path_to_save = `${dir}_${d}.csv`
     console.log(`saving a file to ${path_to_save}`)
     await WriteDataToCSV(path_to_save, dataList);
