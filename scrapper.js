@@ -93,8 +93,8 @@ async function WriteDataToCSV(path, records) {
         });
 }
 
-async function upload_csv_to_s3(fileName) {
-    fs.readFile(fileName, (err, data) => {
+async function upload_csv_to_s3(path, fileName) {
+    fs.readFile(path, (err, data) => {
         if (err) throw err;
         const params = {
             Bucket: 'sbi-earnings-cal-csv',
@@ -148,12 +148,13 @@ async function upload_csv_to_s3(fileName) {
         dataList = dataList.concat(data)
         flag = await hasNextPage(page);
     }
-    const dir = process.env.DYNO ? '/tmp/sbi_earnings_cal' : './csv/sbi_earnings_cal'
-    const path_to_save = `${dir}_${d}.csv`
+    const file_name = `sbi_earnings_cal_${d}.csv`
+    const dir = process.env.DYNO ? '/tmp/' : './csv/'
+    const path_to_save = `${dir}${file_name}`
     console.log(`saving a file to ${path_to_save}`)
     await WriteDataToCSV(path_to_save, dataList);
 
-    await upload_csv_to_s3(path_to_save)
+    await upload_csv_to_s3(path_to_save, file_name)
 
     await browser.close()
 
