@@ -1,0 +1,133 @@
+const puppeteer = require('puppeteer');
+const fs = require('fs')
+const {promisify} = require('util');
+const moment = require('moment')
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+async function go_to_url(page, url) {
+    await page.goto(url);
+    await page.waitFor(1500);
+    return page;
+}
+
+
+async function scrape_table(page) {
+    const data = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll('div#announcementInfo table.md-table06 tr')).filter((e, idx) => {
+            return idx != 0
+        }).map((e) => {
+            return Array.from(e.querySelectorAll('td')).filter((e, idx) => {
+                return idx != 7 && idx != 8
+            }).map((e, idx) => {
+                if (idx == 0) {
+                    return e.querySelectorAll('p:nth-of-type(1)')[0].innerText.replace('\n', '')
+                } else if (idx == 1) {
+                    return e.innerText.replace('\n', '')
+                } else if (idx == 2) {
+                    return e.textContent.trim().replace(',', '')
+                } else if (idx == 3) {
+                    return e.textContent.trim().replace(',', '')
+                } else if (idx == 4) {
+                    return e.textContent.trim().replace(',', '')
+
+                } else if (idx == 5) {
+                    return e.textContent.trim().replace(',', '')
+
+                } else if (idx == 6) {
+                    return e.textContent.trim().replace(',', '')
+                }
+            })
+        })
+    },)
+    return data
+}
+
+
+async function hasNextPage(page) {
+
+    const next_back_elem = await page.evaluate(() => {
+        return Array.from(document.querySelector('div.floatR.alR:nth-of-type(3)').querySelectorAll('a')).map((e) => {
+            return e.textContent.trim()
+        });
+    })
+
+
+    if (next_back_elem.length == 1 && next_back_elem[0] === '次へ→') {
+        return true;
+    } else if (next_back_elem.length == 2 && next_back_elem[1] == '次へ→') {
+        return true;
+    }
+    return false;
+
+}
+
+async function click_next_page(page) {
+
+    const next_back_elem = await page.$$('div.floatR.alR:nth-of-type(3) a');
+
+    if (next_back_elem.length == 2) {
+        await next_back_elem[0].click();
+    } else if (next_back_elem.length == 4) {
+        await next_back_elem[1].click()
+    }
+    await page.waitFor(3000);
+    return page;
+}
+
+
+async function WriteDataToCSV(path, records) {
+    const csvWriter = await createCsvWriter({
+        path: path,
+        header: [0, 1, 2, 3, 4, 5, 6]
+    });
+
+    await csvWriter.writeRecords(records)       // returns a promise
+        .then(() => {
+            console.log('...Done');
+        });
+}
+
+(async () => {
+
+    const d = process.argv[2]
+
+    if (d.length != 8) {
+        console.log('yyyymmdd形式で日付を入力してください')
+        return;
+    }
+
+    const year = d.substring(0, 4)
+    const month = d.substring(4, 6)
+    const day = d.substring(6, 8)
+
+    const SBI_EARNINGS_URL = `https://www.sbisec.co.jp/ETGate/?_ControlID=WPLETmgR001Control&_PageID=WPLETmgR001Mdtl20&_DataStoreID=DSWPLETmgR001Control&_ActionID=DefaultAID&burl=iris_economicCalendar&cat1=market&cat2=economicCalender&dir=tl1-cal%7Ctl2-schedule%7Ctl3-stock%7Ctl4-calsel%7Ctl9-${year}${month}%7Ctl10-${year}${month}${day}&file=index.html&getFlg=on`
+    const FAKE_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, likeGecko) Chrome/41.0.2228.0 Safari/537.36';
+    let dataList = []
+    const browser = await puppeteer.launch({headless: true});
+    let page = await browser.newPage();
+    await page.setUserAgent(FAKE_USER_AGENT)
+    console.log(`fetching ${SBI_EARNINGS_URL}` )
+
+    page = await go_to_url(page, SBI_EARNINGS_URL);
+    await page.waitFor(30*1000);
+    let data = await scrape_table(page)
+    console.log(data)
+
+    dataList = dataList.concat(data)
+
+    let flag = await hasNextPage(page);
+    while (flag) {
+        page = await click_next_page(page)
+        data = await scrape_table(page)
+        console.log(data)
+        dataList = dataList.concat(data)
+        flag = await hasNextPage(page);
+    }
+    const dir = process.env.ON_HEROKU ? '/tmp/sbi_earnings_cal_' : './csv/sbi_earnings_cal_'
+    const path_to_save = `${dir}_${d}.csv`
+    console.log(`saving a file to ${path_to_save}`)
+    await WriteDataToCSV(path_to_save, dataList);
+
+    await browser.close()
+
+})()
