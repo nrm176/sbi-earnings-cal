@@ -11,11 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "moment": "^2.20.1",
-    "puppeteer": "git://github.com/GoogleChrome/puppeteer.git",
+    "aws-sdk": "^2.507.0",
     "csv": "^3.1.0",
     "csv-writer": "^1.0.0",
     "gulp-env": "^0.4.0",
-    "node-env-file": "^0.1.8"
+    "moment": "^2.20.1",
+    "node-env-file": "^0.1.8",
+    "puppeteer": "git://github.com/GoogleChrome/puppeteer.git"
   }
 }

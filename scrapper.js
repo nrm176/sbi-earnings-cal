@@ -3,6 +3,12 @@ const fs = require('fs')
 const {promisify} = require('util');
 const moment = require('moment')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const AWS = require('aws-sdk');
+
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
+})
 
 async function go_to_url(page, url) {
     await page.goto(url);
@@ -87,6 +93,22 @@ async function WriteDataToCSV(path, records) {
         });
 }
 
+async function upload_csv_to_s3(fileName) {
+    fs.readFile(fileName, (err, data) => {
+        if (err) throw err;
+        const params = {
+            Bucket: 'sbi-earnings-cal-csvsbi-earnings-cal-csv',
+            Key: fileName,
+            Body: JSON.stringify(data, null, 2)
+        };
+
+        s3.upload(params, (s3Err, data)=> {
+            if (s3Err) throw s3Err
+            console.log(`File uploaded successfully at ${data.Location}`)
+        })
+    })
+}
+
 (async () => {
 
     let d = process.argv[2]
@@ -130,6 +152,8 @@ async function WriteDataToCSV(path, records) {
     const path_to_save = `${dir}_${d}.csv`
     console.log(`saving a file to ${path_to_save}`)
     await WriteDataToCSV(path_to_save, dataList);
+
+    await upload_csv_to_s3(path_to_save)
 
     await browser.close()
 
