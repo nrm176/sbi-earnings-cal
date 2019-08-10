@@ -97,7 +97,7 @@ async function upload_csv_to_s3(fileName) {
     fs.readFile(fileName, (err, data) => {
         if (err) throw err;
         const params = {
-            Bucket: 'sbi-earnings-cal-csvsbi-earnings-cal-csv',
+            Bucket: 'sbi-earnings-cal-csv',
             Key: fileName,
             Body: JSON.stringify(data, null, 2)
         };
