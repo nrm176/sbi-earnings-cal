@@ -2,6 +2,7 @@ In heroku CLI
 
 1. $ heroku create [app_name]
 2. $ git push heroku master
+3. $ heroku
 
 Make sure you add the following buildpacks:
  
