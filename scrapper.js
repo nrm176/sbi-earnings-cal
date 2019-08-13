@@ -4,6 +4,7 @@ const {promisify} = require('util');
 const moment = require('moment')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const AWS = require('aws-sdk');
+const readFile = promisify.promisify(fs.readFile);
 
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -109,6 +110,13 @@ async function upload_csv_to_s3(path, fileName) {
     })
 }
 
+async function read_csv_file(path) {
+    const data = await readFile(path);
+
+    return JSON.stringify(data, null, 2)
+
+}
+
 (async () => {
 
     let d = process.argv[2]
@@ -154,7 +162,9 @@ async function upload_csv_to_s3(path, fileName) {
     console.log(`saving a file to ${path_to_save}`)
     await WriteDataToCSV(path_to_save, dataList);
 
-    await upload_csv_to_s3(path_to_save, file_name)
+    if (process.env.DYNO) {
+        await upload_csv_to_s3(path_to_save, file_name)
+    }
 
     await browser.close()
 

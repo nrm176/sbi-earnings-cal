@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "today-job": "node scrapper.js today"
+    "today-job": "node scrapper.js today",
+    "specific-date": "node scrapper.js"
   },
   "keywords": [],
   "author": "",
