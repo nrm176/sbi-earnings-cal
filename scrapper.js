@@ -1,10 +1,10 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs')
-const {promisify} = require('util');
+const util = require('util');
 const moment = require('moment')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const AWS = require('aws-sdk');
-const readFile = promisify.promisify(fs.readFile);
+const readFile = util.promisify(fs.readFile);
 
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -85,7 +85,8 @@ async function click_next_page(page) {
 async function WriteDataToCSV(path, records) {
     const csvWriter = await createCsvWriter({
         path: path,
-        header: [0, 1, 2, 3, 4, 5, 6]
+        header: [0, 1, 2, 3, 4, 5, 6],
+        encoding:'utf8'
     });
 
     await csvWriter.writeRecords(records)       // returns a promise
@@ -100,7 +101,7 @@ async function upload_csv_to_s3(path, fileName) {
         const params = {
             Bucket: 'sbi-earnings-cal-csv',
             Key: fileName,
-            Body: JSON.stringify(data, null, 2)
+            Body: data
         };
 
         s3.upload(params, (s3Err, data)=> {
