@@ -5,23 +5,23 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "today-job": "node scrapper.js today",
-    "specific-date": "node scrapper.js",
+    "today-job": "node run.js today",
+    "specific-date": "node run.js",
     "experiment": "node experiment.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.507.0",
-    "csv": "^3.1.0",
-    "csv-writer": "^1.0.0",
+    "aws-sdk": "^2.799.0",
+    "csv": "^5.3.2",
+    "csv-writer": "^1.6.0",
     "gulp-env": "^0.4.0",
-    "moment": "^2.20.1",
+    "moment": "^2.29.1",
     "node-env-file": "^0.1.8",
     "puppeteer": "git://github.com/GoogleChrome/puppeteer.git"
   },
   "devDependencies": {
-    "dotenv": "^8.0.0"
+    "dotenv": "^8.2.0"
   }
 }
