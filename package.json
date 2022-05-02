@@ -19,7 +19,7 @@
     "gulp-env": "^0.4.0",
     "moment": "^2.29.1",
     "node-env-file": "^0.1.8",
-    "puppeteer": "git://github.com/GoogleChrome/puppeteer.git"
+    "puppeteer": "^13.7.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
