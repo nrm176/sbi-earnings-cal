@@ -5,7 +5,6 @@ In heroku CLI
 3. $ heroku run npm run [script]
 
 Make sure you add the following buildpacks:
- 
 ```
 $ heroku buildpacks:clear
 $ heroku buildpacks:add --index 1 https://github.com/jontewks/puppeteer-heroku-buildpack
