@@ -3,7 +3,7 @@ const fs = require('fs')
 const util = require('util');
 const moment = require('moment')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const {S3Client, AbortMultipartUploadCommand} = require("@aws-sdk/client-s3");
+const {S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
 const readFile = util.promisify(fs.readFile);
 
 const s3 = new S3Client({
@@ -106,11 +106,14 @@ async function upload_csv_to_s3(path, fileName) {
             Key: fileName,
             Body: data
         };
+        s3.send(
+            new PutObjectCommand(params)
+        )
 
-        s3.upload(params, (s3Err, data) => {
-            if (s3Err) throw s3Err
-            console.log(`File uploaded successfully at ${data.Location}`)
-        })
+        // s3.upload(params, (s3Err, data) => {
+        //     if (s3Err) throw s3Err
+        //     console.log(`File uploaded successfully at ${data.Location}`)
+        // })
     })
 }
 
