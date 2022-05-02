@@ -13,12 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.799.0",
+    "aws-sdk": "^2.1125.0",
     "csv-writer": "^1.6.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.3",
     "puppeteer": "^13.7.0"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0"
+    "dotenv": "^16.0.0"
   }
 }
