@@ -17,7 +17,7 @@
     "csv": "^5.3.2",
     "csv-writer": "^1.6.0",
     "gulp-env": "^0.4.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "node-env-file": "^0.1.8",
     "puppeteer": "git://github.com/GoogleChrome/puppeteer.git"
   },
