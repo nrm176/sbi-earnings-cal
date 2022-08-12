@@ -5,6 +5,12 @@ const moment = require('moment')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const {S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
 const readFile = util.promisify(fs.readFile);
+const { Pool, Client } = require('pg')
+const parseDbUrl = require("parse-database-url");
+const dotenv = require('dotenv');
+dotenv.config();
+
+const db_config = parseDbUrl(process.env.DATABASE_URL)
 
 const s3 = new S3Client({
     region: 'us-west-2',
@@ -13,6 +19,8 @@ const s3 = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_KEY
     }
 })
+
+const pg_pool = new Pool(db_config)
 
 async function go_to_url(page, url) {
     await page.goto(url);
@@ -109,11 +117,6 @@ async function upload_csv_to_s3(path, fileName) {
         s3.send(
             new PutObjectCommand(params)
         )
-
-        // s3.upload(params, (s3Err, data) => {
-        //     if (s3Err) throw s3Err
-        //     console.log(`File uploaded successfully at ${data.Location}`)
-        // })
     })
 }
 
@@ -170,7 +173,7 @@ async function read_csv_file(path) {
     await WriteDataToCSV(path_to_save, dataList);
 
     if (process.env.DYNO) {
-        await upload_csv_to_s3(path_to_save, file_name)
+        // await upload_csv_to_s3(path_to_save, file_name)
     }
 
     await browser.close()
