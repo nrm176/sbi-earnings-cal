@@ -24,7 +24,7 @@ const pg_pool = new Pool(db_config)
 
 async function go_to_url(page, url) {
     await page.goto(url);
-    await page.waitFor(1500);
+    await page.waitForTimeout(1500);
     return page;
 }
 
@@ -88,7 +88,7 @@ async function click_next_page(page) {
     } else if (next_back_elem.length == 4) {
         await next_back_elem[1].click()
     }
-    await page.waitFor(3000);
+    await page.waitForTimeout(3000);
     return page;
 }
 
@@ -152,7 +152,7 @@ async function read_csv_file(path) {
     console.log(`fetching ${SBI_EARNINGS_URL}`)
 
     page = await go_to_url(page, SBI_EARNINGS_URL);
-    await page.waitFor(30 * 1000);
+    await page.waitForTimeout(30 * 1000);
     let data = await scrape_table(page)
     console.log(data)
 
@@ -173,7 +173,7 @@ async function read_csv_file(path) {
     await WriteDataToCSV(path_to_save, dataList);
 
     if (process.env.DYNO) {
-        // await upload_csv_to_s3(path_to_save, file_name)
+        await upload_csv_to_s3(path_to_save, file_name)
     }
 
     await browser.close()
